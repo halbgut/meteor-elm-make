@@ -3,6 +3,14 @@ const elm = Npm.require('elm/platform')
 
 const elmMake = elm.executablePaths['elm-make']
 
+const wrapScript = str => str + `
+; if (Meteor.isServer) {
+  Elm.worker(Elm.Main)
+} else {
+  window.addEventListener('load', Elm.fullscreen.bind(Elm, Elm.Main))
+}
+`
+
 const ElmCompiler = comp => {
   const fs = Plugin.fs
   const path = Plugin.path
@@ -38,7 +46,6 @@ const ElmCompiler = comp => {
 
   const root = findRoot()
   const elmDir = setUpDirs(root)
-  console.log(elmDir)
 
   const sourcePath = `${comp.fullInputPath}`
   const virtPath = `${comp.inputPath}.js`
@@ -59,7 +66,9 @@ const ElmCompiler = comp => {
   comp.addJavaScript({
     path: virtPath,
     sourcePath,
-    data,
+    data: filename === 'Main.elm'
+      ? wrapScript(data)
+      : data,
     bare: true
   })
 }
