@@ -11,7 +11,8 @@ const wrapScript = str => str + `
 }
 `
 
-const ElmCompiler = comp => {
+const ElmCompiler = {}
+ElmCompiler.processFilesForTarget = files => {
   const fs = Plugin.fs
   const path = Plugin.path
 
@@ -22,6 +23,17 @@ const ElmCompiler = comp => {
       return false
     }
     return true
+  }
+
+  const deepMkdir = (dir, notFirst) => {
+    if(!dir) return
+    if(!notFirst && exists(dir)) return
+    if(exists(dir)) {
+      return dir
+    } else {
+      deepMkdir(path.join(dir, '..'), true)
+      fs.mkdirSync(dir)
+    }
   }
 
   const findRoot = () => {
@@ -38,40 +50,82 @@ const ElmCompiler = comp => {
     if(!exists(elmDir)) fs.mkdirSync(elmDir)
     if(!exists(`${elmDir}/Native`)) fs.mkdirSync(`${elmDir}/Native`)
     if(!exists(`${elmDir}/.gitignore`)) fs.writeFileSync(`${elmDir}/.gitignore`, 'elm-stuff\n')
+    if(!exists(`${elmDir}/.modules`)) fs.mkdirSync(`${elmDir}/.modules`)
+    if(!exists(`${elmDir}/.tmp`)) fs.mkdirSync(`${elmDir}/.tmp`)
     return elmDir
   }
-
-  const filename = path.basename(comp.inputPath)
-  if(filename !== 'Main.elm' && filename.split('.')[1] !== '_') return
 
   const root = findRoot()
   const elmDir = setUpDirs(root)
 
-  const sourcePath = `${comp.fullInputPath}`
-  const virtPath = `${comp.inputPath}.js`
-  const tmpPath = `${sourcePath}.tmp.js`
+  files.forEach(file => {
+    const filePath = file.getPathInPackage()
+    const filename = path.basename(file.getPathInPackage())
+    const packageName = file.getPackageName()
 
-  const data = Meteor.wrapAsync(done => {
-    spawn(elmMake, [sourcePath, '--yes', `--output=${tmpPath}`], { cwd: elmDir, stdio: 'inherit' })
-      .on('exit', Meteor.bindEnvironment((err) => {
-        if(err > 0) {
-          done(err)
+    // Relative path to .elm
+    let sourcePath = `${elmDir}/../${filePath}`
+
+    const virtPath = `${filePath}.js`
+    const tmpPath = `${sourcePath}.tmp.js`
+
+    if(filename !== 'Main.elm') {
+      // If the file is within package
+      if(packageName) {
+        const packageNameSplit = packageName.split(':')
+        const moduleName =
+          packageNameSplit[0][0].toUpperCase() +
+          packageNameSplit[0].substr(1)
+        let modulePath
+        const dirname = path.dirname(filePath) === '.'
+          ? ''
+          : path.dirname(filePath)
+        if(packageNameSplit[1].substr(0, 4) === 'elm-') {
+          const cleanModuleName = packageNameSplit[1].substr(4)
+          const module = moduleName + cleanModuleName[1][0].toUpperCase() + cleanModuleName[1].substr(1)
+          modulePath = `${elmDir}/.modules/${module}/${dirname}`
+        } else {
+          // These modules won't need to be accessible
+          const module = moduleName + packageNameSplit[1][0].toUpperCase() + packageNameSplit[1].substr(1)
+          modulePath = `${elmDir}/.tmp/${module}/${dirname}`
         }
-        const data = fs.readFileSync(tmpPath).toString()
-        fs.unlinkSync(tmpPath)
-        done(null, data)
-      }))
-  })()
 
-  comp.addJavaScript({
-    path: virtPath,
-    sourcePath,
-    data: filename === 'Main.elm'
-      ? wrapScript(data)
-      : data,
-    bare: true
+        deepMkdir(modulePath)
+
+        sourcePath = `${modulePath}/${filename}`
+        fs.writeFileSync(sourcePath, file.getContentsAsBuffer())
+      }
+
+      if(!file.getBasename().split('.')[1] !== '_') {
+        return
+      }
+    }
+
+    const data = Meteor.wrapAsync(done => {
+      console.log(tmpPath, sourcePath)
+      spawn(elmMake, [`${sourcePath}`, '--yes', `--output=${tmpPath}`], { cwd: elmDir, stdio: 'inherit' })
+        .on('exit', Meteor.bindEnvironment((err) => {
+          if(err > 0) {
+            done(err)
+          }
+          const data = fs.readFileSync(tmpPath).toString()
+          fs.unlinkSync(tmpPath)
+          done(null, data)
+        }))
+    })()
+
+    file.addJavaScript({
+      path: virtPath,
+      data: filename === 'Main.elm'
+        ? wrapScript(data)
+        : data,
+      bare: true
+    })
   })
 }
 
-Plugin.registerSourceHandler('elm', { archMatching: 'web' }, ElmCompiler)
+Plugin.registerCompiler({
+  extensions: ['elm', '_.elm'],
+  filenames: []
+}, () => Object.create(ElmCompiler))
 
