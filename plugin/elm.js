@@ -7,18 +7,25 @@ const ElmCompiler = comp => {
   const fs = Plugin.fs
   const path = Plugin.path
 
+  const exists = (thing) => {
+    try {
+      fs.statSync(thing)
+    } catch (e) {
+      return false
+    }
+    return true
+  }
+
   const setUpDirs = (root) => {
     const elmDir = `${root}/.elm`
-    const stat = fs.statSync(elmDir)
-    if(!stat) {
-      fs.mkdirSync(elmDir)
-      fs.writeFileSync(`${elmDir}/.gitignore`, '*\n')
-    }
+    if(!exists(elmDir)) fs.mkdirSync(elmDir)
+    if(!exists(`${elmDir}/Native`)) fs.mkdirSync(`${elmDir}/Native`)
+    if(!exists(`${elmDir}/.gitignore`)) fs.writeFileSync(`${elmDir}/.gitignore`, 'elm-stuff\n')
     return elmDir
   }
 
   const filename = path.basename(comp.inputPath)
-  if(filename !== 'main.elm') return
+  if(filename !== 'Main.elm' && filename.split('.')[1] !== '$') return
 
   const root = `${process.cwd()}`
   const elmDir = setUpDirs(root)
