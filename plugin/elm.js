@@ -12,7 +12,7 @@ const ElmCompiler = comp => {
     const stat = fs.statSync(elmDir)
     if(!stat) {
       fs.mkdirSync(elmDir)
-      fs.writeFileSync(`${elmDir}/.gitignore`, '.elm/\n')
+      fs.writeFileSync(`${elmDir}/.gitignore`, '*\n')
     }
     return elmDir
   }
