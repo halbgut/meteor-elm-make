@@ -16,6 +16,15 @@ const ElmCompiler = comp => {
     return true
   }
 
+  const findRoot = () => {
+    let curr = process.cwd()
+    while(exists(curr) && !exists(`${curr}/.meteor`)) {
+      curr += '/..'
+    }
+    if(!exists(curr)) throw new Error('not in a Meteor project')
+    return curr
+  }
+
   const setUpDirs = (root) => {
     const elmDir = `${root}/.elm`
     if(!exists(elmDir)) fs.mkdirSync(elmDir)
@@ -25,12 +34,13 @@ const ElmCompiler = comp => {
   }
 
   const filename = path.basename(comp.inputPath)
-  if(filename !== 'Main.elm' && filename.split('.')[1] !== '$') return
+  if(filename !== 'Main.elm' && filename.split('.')[1] !== '_') return
 
-  const root = `${process.cwd()}`
+  const root = findRoot()
   const elmDir = setUpDirs(root)
+  console.log(elmDir)
 
-  const sourcePath = `${root}/${comp.inputPath}`
+  const sourcePath = `${comp.fullInputPath}`
   const virtPath = `${comp.inputPath}.js`
   const tmpPath = `${sourcePath}.tmp.js`
 
