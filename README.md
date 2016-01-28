@@ -115,4 +115,5 @@ import Common.SomeLib
 ## TODO
 
 * recursively delete .elm/.modules and .elm/.tmp in every build
+* Add a way to specify dependencies from packages (elm-dependencies.json?)
 
