@@ -114,6 +114,8 @@ import Common.SomeLib
 
 ## TODO
 
+* tests.
 * recursively delete .elm/.modules and .elm/.tmp in every build
+* abstract the output from elm-make in order to prevent the ugly error message
 * Add a way to specify dependencies from packages (elm-dependencies.json?)
 
