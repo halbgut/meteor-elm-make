@@ -67,25 +67,33 @@ ElmCompiler.processFilesForTarget = files => {
       }
     }
 
-    const data = Meteor.wrapAsync(done => {
-      spawn(elmMake, [`${sourcePath}`, '--yes', `--output=${tmpPath}`], { cwd: elmDir, stdio: 'inherit' })
-        .on('exit', Meteor.bindEnvironment((err) => {
+    let out = ''
+    try {
+      const data = Meteor.wrapAsync(done => {
+        const proc = spawn(elmMake, [`${sourcePath}`, '--yes', `--output=${tmpPath}`], { cwd: elmDir })
+        proc.stderr.on('data', data => out += data)
+        proc.stdout.on('data', data => out += data)
+        proc.on('exit', Meteor.bindEnvironment((err) => {
           if(err > 0) {
-            done(err)
+            return done(out)
           }
           const data = fs.readFileSync(tmpPath).toString()
           fs.unlinkSync(tmpPath)
           done(null, data)
         }))
-    })()
+      })()
 
-    file.addJavaScript({
-      path: virtPath,
-      data: filename === 'Main.elm'
-        ? wrapScript(data)
-        : data,
-      bare: true
-    })
+      file.addJavaScript({
+        path: virtPath,
+        data: filename === 'Main.elm'
+          ? wrapScript(data)
+          : data,
+        bare: true
+      })
+    } catch (e) {
+      console.error(out)
+      return
+    }
   })
 }
 
