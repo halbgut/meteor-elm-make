@@ -3,10 +3,10 @@
 ## Install
 
 ```
-meteor add kriegslustig:elm-make
+meteor add elm:make
 ```
 
-# kriegslustig:elm-make - 0.1.0
+# elm:make - 0.1.0 for Elm 0.16.0
 
 Build Elm inside your Meteor app.
 
@@ -21,7 +21,7 @@ The build plugin searches for two kinds of files:
 
 If you're writing your application in Elm, you'll want to use the former variant. I recommend to have two `Main` modules one `server/Main.elm` and one `client/Main.elm`. Then import different modules from these.
 
-`kriegslustig:elm-make` saves all its stuff inside an `.elm` directory, which will be created at the [root of your project](complete-elm-build-process). So if you want to add Elm modules or change something inside the Elm configuration, you'll need to do it inside `.elm`.
+`elm:make` saves all its stuff inside an `.elm` directory, which will be created at the [root of your project](complete-elm-build-process). So if you want to add Elm modules or change something inside the Elm configuration, you'll need to do it inside `.elm`.
 
 So to install Elm modules
 

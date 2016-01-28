@@ -1,6 +1,6 @@
 Package.describe({
-  summary: 'Elm for Meteor'
-, name: 'kriegslustig:elm-make'
+  summary: 'Elm 0.16.0 for Meteor'
+, name: 'elm:make'
 , version: '0.1.0'
 , git: 'https://github.com/Kriegslustig/meteor-elm-make.git'
 })
@@ -10,7 +10,7 @@ Package.registerBuildPlugin({
 , use: ['ecmascript', 'meteor']
 , sources: ['lib/helpers.js', 'elm.js']
 , npmDependencies: {
-    "elm": "0.16.0"
+    'elm': '0.16.0'
   }
 })
 
