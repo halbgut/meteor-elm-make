@@ -30,9 +30,11 @@ ElmCompiler.processFilesForTarget = files => {
 
   const root = h.findRoot()
   const elmDir = setUpDirs(root)
+  const config = h.setUpElmSources(elmDir)
 
-  const registerTemp = h.cloneFile.bind(null, elmDir, '.modules')
-  const registerModule = h.cloneFile.bind(null, elmDir, '.tmp')
+  const registerModule = h.cloneFile.bind(null, elmDir, '.modules')
+  const registerIndex = h.cloneFile.bind(null, elmDir, '.')
+  const registerTemp = h.cloneFile.bind(null, elmDir, '.tmp')
 
   files.forEach(file => {
     let tempFiles = []
@@ -51,11 +53,14 @@ ElmCompiler.processFilesForTarget = files => {
       // If the file is within package
       if (h.shouldCompile(filename)) {
         sourcePath = registerTemp(packageName, filePath, file)
-        tempFiles.push(sourcePath)
       } else if (h.shouldExpose(packageName)) {
         // Then register the module in a .elm/.modules elm- the modules
         // will be imporable by all other elm modules.
-        sourcePath = registerModule(packageName, filePath, file,)
+        if (h.isIndexModule(packageName, filePath)) {
+          sourcePath = registerIndex(packageName, filePath, file)
+        } else {
+          sourcePath = registerModule(packageName, filePath, file)
+        }
       } else {
         // If it should neither be compiled or registered, ignore the file
         return
