@@ -37,7 +37,9 @@ Don't know what they are? [Read about them here](https://github.com/NoRedInk/tak
 
 Native modules are a little trickier, since Meteor would usually use them is the normal build process. So you should place then inside the `.elm/Native`. The directory is created for you at the first build, if it doesn't exist yet.
 
-Native modules inside Packages may be placed anywhere.
+_[Not implemented jet:]_
+
+Native modules inside Packages should be placed in a directory called `Native`. They should have the `.elm.js` extension and added inside your `package.js`.
 
 ## Add Elm Modules from Packages
 
@@ -95,7 +97,7 @@ For every file
 2. Add the elm module to `.elm/.modules` ([see _Add Elm Modules from Packages_](#add-elm-bodules-from-packages)).
 3. Copy the file to `.temp` this needs to be done, because the build plugin doesn't know the real location of the file.
 4. Is the file is named `Main.elm` or does it have the `._.elm` extension.
-5. If none it shouldn't be compiled, ignore it.
+5. If none it shouldn't be compiled, do nothing more.
 6. Compile the module.
 
 ## Recommendations
@@ -126,8 +128,8 @@ import Common.SomeLib
 
 ## TODO
 
-* tests.
-* recursively delete .elm/.modules and .elm/.tmp in every build
-* abstract the output from elm-make in order to prevent the ugly error message
-* Add a way to specify dependencies from packages (elm-dependencies.json?)
+* tests
+* recursively delete .elm/.modules and .elm/.tmp in every build (or something)
+* prettier error msgs
+* add native module support for packages
 
