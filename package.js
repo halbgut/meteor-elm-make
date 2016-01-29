@@ -7,7 +7,7 @@ Package.describe({
 
 Package.registerBuildPlugin({
   name: 'elm'
-, use: ['ecmascript@0.1.6', 'meteor@1.1.10']
+, use: ['ecmascript@0.1.6', 'meteor@1.1.10', 'babel-compiler']
 , sources: ['lib/helpers.js', 'elm.js']
 , npmDependencies: {
     'elm': '0.16.0'

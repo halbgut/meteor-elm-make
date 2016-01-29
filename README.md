@@ -37,8 +37,6 @@ Don't know what they are? [Read about them here](https://github.com/NoRedInk/tak
 
 Native modules are a little trickier, since Meteor would usually use them is the normal build process. So you should place then inside the `.elm/Native`. The directory is created for you at the first build, if it doesn't exist yet.
 
-_[Not implemented jet:]_
-
 Native modules inside Packages should be placed in a directory called `Native`. They should have the `.elm.js` extension and added inside your `package.js`.
 
 ## Add Elm Modules from Packages

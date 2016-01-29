@@ -59,8 +59,8 @@ ElmCompiler.processFilesForTarget = files => {
       if (h.shouldCompile(filename)) {
         const module = h.makeModuleName(packageName, true)
         const tmpSource = registerTemp(module, filePath, file, true)
-        // Link the .temp/module directory
-        const sources = h.overrideSources(elmDir, [`.temp/${module}`])
+        // Link the .tmp/module directory
+        const sources = h.overrideSources(elmDir, [`.tmp/${module}`])
         const tmpPath = `${tmpSource}.tmp.js`
         h.execCommand(elmMake, [tmpSource, '--yes', `--output=${tmpPath}`], { cwd: elmDir })
         data = h.getAndUnlink(tmpPath)
@@ -78,7 +78,20 @@ ElmCompiler.processFilesForTarget = files => {
       } else {
         // Might be an internal dep inside a package
         const module = h.makeModuleName(packageName, true)
-        registerTemp(module, filePath, file)
+        let tmpPath
+        if(filePath.substr(-7) === '.elm.js') {
+          tmpPath = filePath.substr(0, filePath.length - 7) + '.js'
+          registerTemp(
+            module,
+            tmpPath,
+            Babel.compile(
+              file.getContentsAsBuffer().toString(),
+              Babel.getDefaultOptions()
+            ).code
+          )
+        } else {
+          registerTemp(module, filePath, file)
+        }
         return
       }
     } else if (h.shouldCompile(filename)) {
@@ -107,7 +120,7 @@ ElmCompiler.processFilesForTarget = files => {
 }
 
 Plugin.registerCompiler({
-  extensions: ['elm', '_.elm', 'elm-dependencies.json'],
+  extensions: ['elm', '_.elm', 'elm.js', 'elm-dependencies.json'],
   filenames: []
 }, () => Object.create(ElmCompiler))
 
