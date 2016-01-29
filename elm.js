@@ -50,46 +50,58 @@ ElmCompiler.processFilesForTarget = files => {
       return
     }
 
-    // Relative path to .elm
-    let sourcePath = `${elmDir}/../${filePath}`
-
     const virtPath = `${filePath}.js`
-    const tmpPath = `${sourcePath}.tmp.js`
+
+    let data
 
     if(packageName) {
       // If the file is within package
       if (h.shouldCompile(filename)) {
-        sourcePath = registerTemp(packageName, filePath, file)
+        const module = h.makeModuleName(packageName, true)
+        const tmpSource = registerTemp(module, filePath, file, true)
+        // Link the .temp/module directory
+        const sources = h.overrideSources(elmDir, [`.temp/${module}`])
+        const tmpPath = `${tmpSource}.tmp.js`
+        h.execCommand(elmMake, [tmpSource, '--yes', `--output=${tmpPath}`], { cwd: elmDir })
+        data = h.getAndUnlink(tmpPath)
+        // Relink the normal sources
+        h.overrideSources(elmDir, sources)
       } else if (h.shouldExpose(packageName)) {
         // Then register the module in a .elm/.modules elm- the modules
         // will be imporable by all other elm modules.
         if (h.isIndexModule(packageName, filePath)) {
-          sourcePath = registerIndex(packageName, filePath, file)
+          registerIndex(h.makeModuleName(packageName), filePath, file)
         } else {
-          sourcePath = registerModule(packageName, filePath, file)
+          registerModule(h.makeModuleName(packageName), filePath, file)
         }
+        return
       } else {
-        // If it should neither be compiled or registered, ignore the file
+        // Might be an internal dep inside a package
+        const module = h.makeModuleName(packageName, true)
+        registerTemp(module, filePath, file)
         return
       }
+    } else if (h.shouldCompile(filename)) {
+      const sourcePath = `${elmDir}/../${filePath}`
+      const tmpPath = `${sourcePath}.tmp.js`
+      h.execCommand(elmMake, [sourcePath, '--yes', `--output=${tmpPath}`], { cwd: elmDir })
+      data = h.getAndUnlink(tmpPath)
+    } else {
+      // Not in a package and shouldn't compile
+      return
     }
 
-    try {
-      h.execCommand(elmMake, [`${sourcePath}`, '--yes', `--output=${tmpPath}`], { cwd: elmDir })
-      const data = fs.readFileSync(tmpPath).toString()
-      fs.unlinkSync(tmpPath)
+    file.addJavaScript({
+      path: virtPath,
+      data: filename === 'Main.elm'
+        ? wrapScript(data)
+        : data,
+      bare: true
+    })
 
-      file.addJavaScript({
-        path: virtPath,
-        data: filename === 'Main.elm'
-          ? wrapScript(data)
-          : data,
-        bare: true
-      })
+    try {
     } catch (e) {
-      console.error(`Error while parsing ${packageName} ${filePath}`)
-      console.error(e)
-      return
+      console.error(`\nError while parsing ${packageName ? packageName : ''} ${filePath}\n${e}\n`)
     }
   })
 }

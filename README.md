@@ -77,14 +77,14 @@ For every file
     Yes /            \ No          \
        /              \             \
 '.modules'[2]          \             \
-               'Should compile'[3]?  |
+                        |            |
+                    '.temp'[3]       |
+                        |            |
+               'Should compile'[4]?  |
                   ___/  \            /
               No /       \ Yes      /
-                /         \        |
-       'Do nothing'[4]     |       |
-                           |       |
-                      '.temp'[5]   |
-                           |    __/
+                /         \        /
+       'Do nothing'[5]     |    __/
                            |   /
                        'Compile'[6]
 
@@ -93,9 +93,9 @@ For every file
 0. Simply checks if the file is inside a package. If its not go to [5].
 1. Checks if the package name starts with `elm-` (ignoring the username).
 2. Add the elm module to `.elm/.modules` ([see _Add Elm Modules from Packages_](#add-elm-bodules-from-packages)).
-3. Is the file is named `Main.elm` or does it have the `._.elm` extension.
-4. If none it shouldn't be compiled, ignore it.
-5. Copy the file to `.temp` this needs to be done, because the build plugin doesn't know the real location of the file.
+3. Copy the file to `.temp` this needs to be done, because the build plugin doesn't know the real location of the file.
+4. Is the file is named `Main.elm` or does it have the `._.elm` extension.
+5. If none it shouldn't be compiled, ignore it.
 6. Compile the module.
 
 ## Recommendations
