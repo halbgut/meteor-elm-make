@@ -41,9 +41,21 @@ Native modules inside Packages may be placed anywhere.
 
 ## Add Elm Modules from Packages
 
-`elm-make` searches `packages/elm-*/*.elm` and adds Elm modules inside these directories to `.elm/.modules/[moduleName]`, which is inside the `source-directories` array. `[moduleName]` is the snake cased package name (without the username) with `elm-` removed. So `user:elm-someModule/MyMod.elm` becomes `SomeModule.MyMod`. Modules will need to be declared and imported this way. If you call an elm module by the same name as `[moduleName]`, it will be put inside `.elm/.modules` directly. So you could have a `SomeModule.elm` inside the `user:elm-someModule` package and declare the module as `SomeModule`.
+To add register an Elm module for modules inside the app and other meteor-packages to use it you'll need to add it using `api.addFiles` inside your `package.json`. If your package name starts with `elm-`, `elm:make` adds your Elm modules to `.elm/.modules/[moduleName]`, which is inside the `source-directories` array. `[moduleName]` is the snake cased package name (without the username) with `elm-` removed. So `user:elm-someModule/MyMod.elm` becomes `SomeModule.MyMod`. Modules will need to be declared and imported this way. If you call an elm module by the same name as `[moduleName]`, it will be put inside `.elm/.modules` directly. So you could have a `SomeModule.elm` inside the `user:elm-someModule` package and declare the module as `SomeModule`.
+
+Here's 
 
 There is no safeguard against collisions. So if you have `thisguy:elm-pop` and `thatgirl:elm-pop` installed, all modules are put inside `.elm/.modules/Pop`. So they may override each other.
+
+To declare dependencies from within a meteor package, you can add a `.elm-dependencies.json` file. You'll need to add the file in your `package.js` file using `api.addFiles`. You have to add the dependencies file before adding the elm-modules. The file should contain an object with the elm package names as keys and versions as values. The versions are passed to `elm-package install` as they are. Here's an example
+
+```json
+{
+  "evancz/elm-markdown": "2.0.1"
+}
+```
+
+Just as with Modules registered from Meteor packages, there dependency collisions will be ignored. So if one package requires `"evancz/elm-markdown": "2.0.1"` and an other `"evancz/elm-markdown": "1.0.0"`. The first one loaded will be installed. So if the package with `1.0.0` is built first it will be installed and the `2.0.1` dependency will basically be ignored. You can always override dependencies manually using the elm command line tool from within `.elm`.
 
 ## Complete Elm Build Process
 
