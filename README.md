@@ -6,7 +6,7 @@
 meteor add elm:make
 ```
 
-# elm:make - 0.2.0 for Elm 0.16.0
+# elm:make - 0.2.1 for Elm 0.16.0
 
 Build Elm inside your Meteor app.
 

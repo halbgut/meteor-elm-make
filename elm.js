@@ -7,7 +7,9 @@ const wrapScript = str => str + `
 ; if (Meteor.isServer) {
   Elm.worker(Elm.Main)
 } else {
-  window.addEventListener('load', Elm.fullscreen.bind(Elm, Elm.Main))
+  window.addEventListener('load', function () {
+    Elm.fullscreen(Elm.Main)
+  })
 }
 `
 

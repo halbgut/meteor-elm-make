@@ -1,7 +1,7 @@
 Package.describe({
   summary: 'Elm 0.16.0 for Meteor'
 , name: 'elm:make'
-, version: '0.2.0'
+, version: '0.2.1'
 , git: 'https://github.com/Kriegslustig/meteor-elm-make.git'
 })
 
