@@ -1,7 +1,7 @@
-const spawn = Npm.require('child_process').spawn
 const elm = Npm.require('elm/platform')
 
 const elmMake = elm.executablePaths['elm-make']
+const elmPackage = elm.executablePaths['elm-package']
 
 const wrapScript = str => str + `
 ; if (Meteor.isServer) {
@@ -16,7 +16,7 @@ ElmCompiler.processFilesForTarget = files => {
   const fs = Plugin.fs
   const path = Plugin.path
 
-  const h = helpers(Plugin)
+  const h = helpers(Plugin, Meteor)
 
   const setUpDirs = (root) => {
     const elmDir = `${root}/.elm`
@@ -43,6 +43,11 @@ ElmCompiler.processFilesForTarget = files => {
     const filename = path.basename(file.getPathInPackage())
     const packageName = file.getPackageName()
 
+    if(filename === '.elm-dependencies.json') {
+      h.addDeps(elmPackage, file.getContentsAsBuffer().toString(), elmDir)
+      return
+    }
+
     // Relative path to .elm
     let sourcePath = `${elmDir}/../${filePath}`
 
@@ -67,21 +72,10 @@ ElmCompiler.processFilesForTarget = files => {
       }
     }
 
-    let out = ''
     try {
-      const data = Meteor.wrapAsync(done => {
-        const proc = spawn(elmMake, [`${sourcePath}`, '--yes', `--output=${tmpPath}`], { cwd: elmDir })
-        proc.stderr.on('data', data => out += data)
-        proc.stdout.on('data', data => out += data)
-        proc.on('exit', Meteor.bindEnvironment((err) => {
-          if(err > 0) {
-            return done(out)
-          }
-          const data = fs.readFileSync(tmpPath).toString()
-          fs.unlinkSync(tmpPath)
-          done(null, data)
-        }))
-      })()
+      h.execCommand(elmMake, [`${sourcePath}`, '--yes', `--output=${tmpPath}`], { cwd: elmDir })
+      const data = fs.readFileSync(tmpPath).toString()
+      fs.unlinkSync(tmpPath)
 
       file.addJavaScript({
         path: virtPath,
@@ -91,14 +85,15 @@ ElmCompiler.processFilesForTarget = files => {
         bare: true
       })
     } catch (e) {
-      console.error(out)
+      console.error(`Error while parsing ${packageName} ${filePath}`)
+      console.error(e)
       return
     }
   })
 }
 
 Plugin.registerCompiler({
-  extensions: ['elm', '_.elm'],
+  extensions: ['elm', '_.elm', 'elm-dependencies.json'],
   filenames: []
 }, () => Object.create(ElmCompiler))
 
