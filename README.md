@@ -35,15 +35,13 @@ cd ..
 
 Don't know what they are? [Read about them here](https://github.com/NoRedInk/take-home/wiki/Writing-Native).
 
-Native modules are a little trickier, since Meteor would usually use them is the normal build process. So you should place then inside the `.elm/Native`. The directory is created for you at the first build, if it doesn't exist yet.
+To create native modules you'll need to use the extension `.elm.js`.
 
 Native modules inside Packages should be placed in a directory called `Native`. They should have the `.elm.js` extension and added inside your `package.js`.
 
 ## Add Elm Modules from Packages
 
 To add register an Elm module for modules inside the app and other meteor-packages to use it you'll need to add it using `api.addFiles` inside your `package.json`. If your package name starts with `elm-`, `elm:make` adds your Elm modules to `.elm/.modules/[moduleName]`, which is inside the `source-directories` array. `[moduleName]` is the snake cased package name (without the username) with `elm-` removed. So `user:elm-someModule/MyMod.elm` becomes `SomeModule.MyMod`. Modules will need to be declared and imported this way. If you call an elm module by the same name as `[moduleName]`, it will be put inside `.elm/.modules` directly. So you could have a `SomeModule.elm` inside the `user:elm-someModule` package and declare the module as `SomeModule`.
-
-Here's 
 
 There is no safeguard against collisions. So if you have `thisguy:elm-pop` and `thatgirl:elm-pop` installed, all modules are put inside `.elm/.modules/Pop`. So they may override each other.
 
@@ -115,11 +113,13 @@ client
 ```
 
 `common/SomeLib.elm` Modules will need to be defined as
+
 ```elm
 module Common.SomeLib where
 ```
 
 From `server/Main.elm` you can import `common/SomeLib.elmk` using
+
 ```elm
 import Common.SomeLib
 ```
