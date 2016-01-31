@@ -95,7 +95,7 @@ ElmCompiler.processFilesForTarget = files => {
       h.execCommand(elmMake, [sourcePath, '--yes', `--output=${tmpPath}`], { cwd: elmDir })
       data = h.getAndUnlink(tmpPath)
     } else if (h.isNativeModule(filePath)) {
-      registerTemp(
+      registerModule(
         h.makeModuleName(packageName),
         h.getNativeModulePath(filePath),
         h.es5File(file)
