@@ -28,7 +28,6 @@ ElmCompiler.processFilesForTarget = files => {
   const setUpDirs = (root) => {
     const elmDir = `${root}/.elm`
     if(!h.exists(elmDir)) fs.mkdirSync(elmDir)
-    if(!h.exists(`${elmDir}/Native`)) fs.mkdirSync(`${elmDir}/Native`)
     if(!h.exists(`${elmDir}/.gitignore`)) fs.writeFileSync(`${elmDir}/.gitignore`, ignore)
     if(!h.exists(`${elmDir}/.modules`)) fs.mkdirSync(`${elmDir}/.modules`)
     if(!h.exists(`${elmDir}/.tmp`)) fs.mkdirSync(`${elmDir}/.tmp`)
@@ -83,17 +82,8 @@ ElmCompiler.processFilesForTarget = files => {
       } else {
         // Might be an internal dep inside a package
         const module = h.makeModuleName(packageName, true)
-        let tmpPath
-        if(filePath.substr(-7) === '.elm.js') {
-          tmpPath = filePath.substr(0, filePath.length - 7) + '.js'
-          registerTemp(
-            module,
-            tmpPath,
-            Babel.compile(
-              file.getContentsAsBuffer().toString(),
-              Babel.getDefaultOptions()
-            ).code
-          )
+        if(h.isNativeModule(filePath)) {
+          registerTemp(module, h.getNativeModulePath(filePath), h.es5File(file))
         } else {
           registerTemp(module, filePath, file)
         }
@@ -104,6 +94,12 @@ ElmCompiler.processFilesForTarget = files => {
       const tmpPath = `${sourcePath}.tmp.js`
       h.execCommand(elmMake, [sourcePath, '--yes', `--output=${tmpPath}`], { cwd: elmDir })
       data = h.getAndUnlink(tmpPath)
+    } else if (h.isNativeModule(filePath)) {
+      registerTemp(
+        h.makeModuleName(packageName),
+        h.getNativeModulePath(filePath),
+        h.es5File(file)
+      )
     } else {
       // Not in a package and shouldn't compile
       return
