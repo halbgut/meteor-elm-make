@@ -13,6 +13,11 @@ const wrapScript = str => str + `
 }
 `
 
+const ignore = `elm-stuff
+.tmp
+.modules
+`
+
 const ElmCompiler = {}
 ElmCompiler.processFilesForTarget = files => {
   const fs = Plugin.fs
@@ -24,7 +29,7 @@ ElmCompiler.processFilesForTarget = files => {
     const elmDir = `${root}/.elm`
     if(!h.exists(elmDir)) fs.mkdirSync(elmDir)
     if(!h.exists(`${elmDir}/Native`)) fs.mkdirSync(`${elmDir}/Native`)
-    if(!h.exists(`${elmDir}/.gitignore`)) fs.writeFileSync(`${elmDir}/.gitignore`, 'elm-stuff\n')
+    if(!h.exists(`${elmDir}/.gitignore`)) fs.writeFileSync(`${elmDir}/.gitignore`, ignore)
     if(!h.exists(`${elmDir}/.modules`)) fs.mkdirSync(`${elmDir}/.modules`)
     if(!h.exists(`${elmDir}/.tmp`)) fs.mkdirSync(`${elmDir}/.tmp`)
     return elmDir
