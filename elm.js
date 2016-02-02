@@ -74,7 +74,7 @@ ElmCompiler.processFilesForTarget = files => {
         // Then register the module in a .elm/.modules elm- the modules
         // will be imporable by all other elm modules.
         if (h.isIndexModule(packageName, filePath)) {
-          registerIndex(h.makeModuleName(packageName), filePath, file)
+          registerIndex('.modules', filePath, file)
         } else {
           registerModule(h.makeModuleName(packageName), filePath, file)
         }
