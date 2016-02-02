@@ -39,7 +39,7 @@ ElmCompiler.processFilesForTarget = files => {
   const config = h.setUpElmSources(elmDir)
 
   const registerModule = h.cloneFile.bind(null, elmDir, '.modules')
-  const registerIndex = h.cloneFile.bind(null, elmDir, '.')
+  const registerIndex = h.cloneFile.bind(null, elmDir, '.modules', '.')
   const registerTemp = h.cloneFile.bind(null, elmDir, '.tmp')
 
   files.forEach(file => {
@@ -74,9 +74,15 @@ ElmCompiler.processFilesForTarget = files => {
         // Then register the module in a .elm/.modules elm- the modules
         // will be imporable by all other elm modules.
         if (h.isIndexModule(packageName, filePath)) {
-          registerIndex('.modules', filePath, file)
+          registerIndex(filePath, file)
         } else if (h.isNativeModule(filePath)) {
-          registerModule('.', h.getNativeModulePath(filePath), h.es5File(file))
+          if (h.isNativeIndex(packageName, filePath)) {
+            const nativePath = h.getNativeModulePath(filePath, h.makeModuleName(packageName))
+            registerModule('.', nativePath, h.es5File(file))
+          } else {
+            const nativePath = h.getNativeModulePath(filePath, h.makeModuleName(packageName), true)
+            registerModule('.', nativePath, h.es5File(file))
+          }
         } else {
           registerModule(h.makeModuleName(packageName), filePath, file)
         }
@@ -85,7 +91,8 @@ ElmCompiler.processFilesForTarget = files => {
         // Might be an internal dep inside a package
         const module = h.makeModuleName(packageName, true)
         if (h.isNativeModule(filePath)) {
-          registerTemp('.', h.getNativeModulePath(filePath), h.es5File(file))
+          // TODO: This is kinda broken Native.Yolo becomes Native.Native.Yolo
+          registerTemp('.', h.getNativeModulePath(filePath, module), h.es5File(file))
         } else {
           registerTemp(module, filePath, file)
         }
