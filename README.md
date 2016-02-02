@@ -6,7 +6,7 @@
 meteor add elm:make
 ```
 
-# elm:make - 0.2.2 for Elm 0.16.0
+# elm:make - 0.3.0 for Elm 0.16.0
 
 Build Elm inside your Meteor app.
 
@@ -37,7 +37,7 @@ Don't know what they are? [Read about them here](https://github.com/NoRedInk/tak
 
 To create native modules you'll need to use the extension `.elm.js`.
 
-Native modules inside Packages should be placed in a directory called `Native`. They should have the `.elm.js` extension and added inside your `package.js`.
+Native modules inside Packages should not be placed in a directory called `Native`. They should have the `.elm.js` extension and added inside your `package.js`.
 
 ## Add Elm Modules from Packages
 
@@ -126,8 +126,8 @@ import Common.SomeLib
 
 ## TODO
 
+* update the native modules section
 * tests
 * recursively delete .elm/.modules and .elm/.tmp in every build (or something)
 * prettier error msgs
-* add native module support for packages
 
