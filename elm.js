@@ -75,6 +75,8 @@ ElmCompiler.processFilesForTarget = files => {
         // will be imporable by all other elm modules.
         if (h.isIndexModule(packageName, filePath)) {
           registerIndex('.modules', filePath, file)
+        } else if (h.isNativeModule(filePath)) {
+          registerModule('.', h.getNativeModulePath(filePath), h.es5File(file))
         } else {
           registerModule(h.makeModuleName(packageName), filePath, file)
         }
@@ -82,8 +84,8 @@ ElmCompiler.processFilesForTarget = files => {
       } else {
         // Might be an internal dep inside a package
         const module = h.makeModuleName(packageName, true)
-        if(h.isNativeModule(filePath)) {
-          registerTemp(module, h.getNativeModulePath(filePath), h.es5File(file))
+        if (h.isNativeModule(filePath)) {
+          registerTemp('.', h.getNativeModulePath(filePath), h.es5File(file))
         } else {
           registerTemp(module, filePath, file)
         }
@@ -96,7 +98,7 @@ ElmCompiler.processFilesForTarget = files => {
       data = h.getAndUnlink(tmpPath)
     } else if (h.isNativeModule(filePath)) {
       registerModule(
-        h.makeModuleName(packageName),
+        '.',
         h.getNativeModulePath(filePath),
         h.es5File(file)
       )
