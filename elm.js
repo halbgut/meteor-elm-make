@@ -77,10 +77,10 @@ ElmCompiler.processFilesForTarget = files => {
           registerIndex(filePath, file)
         } else if (h.isNativeModule(filePath)) {
           if (h.isNativeIndex(packageName, filePath)) {
-            const nativePath = h.getNativeModulePath(filePath, h.makeModuleName(packageName))
+            const nativePath = h.getNativeModulePath(filePath, h.makeModuleName(packageName), true)
             registerModule('.', nativePath, h.es5File(file))
           } else {
-            const nativePath = h.getNativeModulePath(filePath, h.makeModuleName(packageName), true)
+            const nativePath = h.getNativeModulePath(filePath, h.makeModuleName(packageName))
             registerModule('.', nativePath, h.es5File(file))
           }
         } else {
