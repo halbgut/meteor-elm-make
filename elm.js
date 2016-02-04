@@ -115,7 +115,7 @@ ElmCompiler.processFilesForTarget = files => {
             bare: true
           })
         } catch (e) {
-          console.error(`\nError while parsing ${packageName ? packageName : ''} ${filePath}\n${e}\n`)
+          file.error({ message: `\n${e}\n` })
         }
       } else {
         copyFile(h, elmDir, packageName, filePath, file)
