@@ -21,7 +21,7 @@ const ignore = `elm-stuff
 const compileFile = (h, packageName, filePath, elmDir, file) => {
   if (packageName) {
     const module = h.makeModuleName(packageName, true)
-    const tmpSource = h.cloneFile(h.join(elmDir, module, filePath), file, true)
+    const tmpSource = h.cloneFile(h.join(elmDir, '.tmp', module, filePath), file, true)
 
     // Link the .tmp/module directory
     const sources = h.overrideSources(elmDir, [`.tmp/${module}`])
@@ -45,8 +45,13 @@ const compileFile = (h, packageName, filePath, elmDir, file) => {
 
 const copyFile = (h, elmDir, packageName, filePath, file) => {
   const isPackage = packageName
-  const shouldExpose = h.shouldExpose(packageName)
   const isNative = h.isNativeModule(filePath)
+  const shouldExpose = isPackage
+    ? h.shouldExpose(packageName)
+    : false
+  const isTest = isPackage
+    ? h.packageAuthor(packageName) === 'local-test'
+    : false
   const isIndex = isPackage
     ? h.isIndexModule(packageName, filePath)
     : false
@@ -56,15 +61,19 @@ const copyFile = (h, elmDir, packageName, filePath, file) => {
   if (!isPackage || shouldExpose) {
     targetPath.push('.module')
   } else {
-    targetPath.push('.temp')
+    targetPath.push('.tmp')
   }
 
-  if (isPackage && isNative) {
+  if (shouldExpose && isNative) {
     targetPath.push('Native')
   }
 
   if (!isIndex && isPackage) {
-    targetPath.push(h.makeModuleName(packageName, shouldExpose))
+    targetPath.push(h.makeModuleName(packageName, !shouldExpose))
+  }
+
+  if (!shouldExpose && isPackage && isNative) {
+    targetPath.push('Native')
   }
 
   if (isNative) {
@@ -73,27 +82,22 @@ const copyFile = (h, elmDir, packageName, filePath, file) => {
     targetPath.push(filePath)
   }
 
-  h.cloneFile(targetPath, file)
+  h.cloneFile(
+    targetPath,
+    isNative
+      ? h.es6File(file)
+      : file
+  )
 }
 
 const ElmCompiler = {}
 ElmCompiler.processFilesForTarget = files => {
   const fs = Plugin.fs
   const path = Plugin.path
-
   const h = helpers(Plugin, Meteor)
 
-  const setUpDirs = (root) => {
-    const elmDir = `${root}/.elm`
-    if(!h.exists(elmDir)) fs.mkdirSync(elmDir)
-    if(!h.exists(`${elmDir}/.gitignore`)) fs.writeFileSync(`${elmDir}/.gitignore`, ignore)
-    if(!h.exists(`${elmDir}/.modules`)) fs.mkdirSync(`${elmDir}/.modules`)
-    if(!h.exists(`${elmDir}/.tmp`)) fs.mkdirSync(`${elmDir}/.tmp`)
-    return elmDir
-  }
-
   const root = h.findRoot()
-  const elmDir = setUpDirs(root)
+  const elmDir = h.setUpDirs(root)
   const config = h.setUpElmSources(elmDir)
 
   files.forEach(file => {
