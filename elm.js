@@ -53,13 +53,13 @@ const copyFile = (h, elmDir, packageName, filePath, file) => {
     ? h.packageAuthor(packageName) === 'local-test'
     : false
   const isIndex = isPackage
-    ? h.isIndexModule(packageName, filePath)
+    ? h.isIndexModule(packageName, filePath, !shouldExpose)
     : false
 
   let targetPath = [elmDir]
 
   if (!isPackage || shouldExpose) {
-    targetPath.push('.module')
+    targetPath.push('.modules')
   } else {
     targetPath.push('.tmp')
   }
