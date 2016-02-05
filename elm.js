@@ -101,15 +101,15 @@ ElmCompiler.processFilesForTarget = files => {
   const config = h.setUpElmSources(elmDir)
 
   files.forEach(file => {
-    const filePath = file.getPathInPackage()
-    const filename = path.basename(file.getPathInPackage())
-    const packageName = file.getPackageName()
+    try {
+      const filePath = file.getPathInPackage()
+      const filename = path.basename(file.getPathInPackage())
+      const packageName = file.getPackageName()
 
-    if (filename === '.elm-dependencies.json') {
-      h.addDeps(elmPackage, file.getContentsAsBuffer().toString(), elmDir)
-    } else {
-      if (h.shouldCompile(filename)) {
-        try {
+      if (filename === '.elm-dependencies.json') {
+        h.addDeps(elmPackage, file.getContentsAsBuffer().toString(), elmDir)
+      } else {
+        if (h.shouldCompile(filename)) {
           const data = compileFile(h, packageName, filePath, elmDir, file)
           file.addJavaScript({
             path: `${filePath}.js`,
@@ -118,12 +118,12 @@ ElmCompiler.processFilesForTarget = files => {
               : data,
             bare: true
           })
-        } catch (e) {
-          file.error({ message: `\n${e}\n` })
+        } else {
+          copyFile(h, elmDir, packageName, filePath, file)
         }
-      } else {
-        copyFile(h, elmDir, packageName, filePath, file)
       }
+    } catch (e) {
+      file.error({ message: `\n${e}\n` })
     }
   })
 }
