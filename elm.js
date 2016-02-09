@@ -72,10 +72,6 @@ const copyFile = (h, elmDir, packageName, filePath, file) => {
     targetPath.push(h.makeModuleName(packageName, !shouldExpose))
   }
 
-  if (!shouldExpose && isPackage && isNative) {
-    targetPath.push('Native')
-  }
-
   if (isNative) {
     targetPath.push(h.convertNativePath(filePath))
   } else {
