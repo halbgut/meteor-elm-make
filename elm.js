@@ -44,17 +44,10 @@ const compileFile = (h, packageName, filePath, elmDir, file) => {
 }
 
 const copyFile = (h, elmDir, packageName, filePath, file) => {
-  const isPackage = packageName
   const isNative = h.isNativeModule(filePath)
-  const shouldExpose = isPackage
-    ? h.shouldExpose(packageName)
-    : false
-  const isTest = isPackage
-    ? h.packageAuthor(packageName) === 'local-test'
-    : false
-  const isIndex = isPackage
-    ? h.isIndexModule(packageName, filePath, !shouldExpose)
-    : false
+  const shouldExpose = h.shouldExpose(packageName)
+  const isTest = h.packageAuthor(packageName) === 'local-test'
+  const isIndex = h.isIndexModule(packageName, filePath, !shouldExpose)
 
   let targetPath = [elmDir]
 
@@ -78,7 +71,7 @@ const copyFile = (h, elmDir, packageName, filePath, file) => {
 
   // All modules except for index modules (the ones with a filename matching the
   // package name),
-  if (!isIndex && isPackage) {
+  if (!isIndex) {
     // should be placed inside a directory named after the module. See
     // under the definition of `makeModuleName` for more info (lib/helpers.js)
     targetPath.push(h.makeModuleName(packageName, !shouldExpose))
@@ -130,7 +123,7 @@ ElmCompiler.processFilesForTarget = files => {
               : data,
             bare: true
           })
-        } else {
+        } else if (packageName) {
           copyFile(h, elmDir, packageName, filePath, file)
         }
       }
