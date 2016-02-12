@@ -58,28 +58,44 @@ const copyFile = (h, elmDir, packageName, filePath, file) => {
 
   let targetPath = [elmDir]
 
-  if (!isPackage || shouldExpose) {
+  // If the meteor package name has the `-elm` prefix, copy it into the
+  // .modules directory. When compiling Elm files inside the app .module is
+  // in the `source-directories`.
+  if (shouldExpose) {
     targetPath.push('.modules')
   } else {
+    // If it shouldn't be exposed, it'll only be usable from within the meteor
+    // package the file is in.
     targetPath.push('.tmp')
   }
 
+  // If it should be exposed and it's a native module `.elm.js`
   if (shouldExpose && isNative) {
+    // Put it inside a `Native` directory, since only modules prefixed with
+    // `Native.` can be native.
     targetPath.push('Native')
   }
 
+  // All modules except for index modules (the ones with a filename matching the
+  // package name),
   if (!isIndex && isPackage) {
+    // should be placed inside a directory named after the module. See
+    // under the definition of `makeModuleName` for more info (lib/helpers.js)
     targetPath.push(h.makeModuleName(packageName, !shouldExpose))
   }
 
+  // If the module is native, the path should be transformed, from
+  // `path/to/module.elm.js` to `path/to/module.js`
   if (isNative) {
     targetPath.push(h.convertNativePath(filePath))
   } else {
     targetPath.push(filePath)
   }
 
+  // Clone the file and create any missing directories.
   h.cloneFile(
     targetPath,
+    // Also, compile ES6 to ES5 inside native modules.
     isNative
       ? h.es6File(file)
       : file
