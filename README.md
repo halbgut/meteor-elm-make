@@ -12,23 +12,23 @@ Build Elm inside your Meteor app.
 
 ## Basic Usage
 
-There is no configuration needed to use this. Just add it to your Meteor App with the [add command](install).
+There is no configuration needed to use this package. Just add it to your Meteor App using the [add command](#install).
 
-The build plugin searches for two kinds of files:
+The build plugin searches for two kinds of files inside your app:
 
 * `Main.elm` (ex. `client/Main.elm`)
 * `*._.elm` (ex. `common/Something._.elm`)
 
-If you're writing your application in Elm, you'll want to use the former variant. I recommend to have two `Main` modules one `server/Main.elm` and one `client/Main.elm`. Then import different modules from these.
+If you're writing your application in Elm, you'll want to use the former variant. I recommend creating two `Main` modules one `server/Main.elm` and one `client/Main.elm`. Then import different modules from these.
 
-`elm:make` saves all its stuff inside an `.elm` directory, which will be created at the [root of your project](complete-elm-build-process). So if you want to add Elm modules or change something inside the Elm configuration, you'll need to do it inside `.elm`.
+`elm:make` saves all its stuff inside an `.elm` directory, which will be created at the [root of your project](#complete-elm-build-process). So if you'd like to modify some settings for Elm you'll need to do that inside `.elm`.
 
-So to install Elm modules you'll need to:
+To install packages you should create a `.elm-dependencies.json` file. It should contain an object, with elm-module names as keys and the desired versions values. These two strings are passed directly to the `elm-package` CLI.
 
-```bash
-cd .elm
-elm package install [somepackage]
-cd ..
+```json
+{
+  "evancz/elm-markdown": "2.0.1"
+}
 ```
 
 ## Native Elm Modules
@@ -55,7 +55,7 @@ To declare dependencies from within a meteor package, you can add a `.elm-depend
 }
 ```
 
-Just as with Modules registered from Meteor packages, there dependency collisions will be ignored. So if one package requires `"evancz/elm-markdown": "2.0.1"` and an other `"evancz/elm-markdown": "1.0.0"`. The first one loaded will be installed. So if the package with `1.0.0` is built first it will be installed and the `2.0.1` dependency will basically be ignored. You can always override dependencies manually using the elm command line tool from within `.elm`.
+Just as with Modules registered from Meteor packages, there dependency collisions will be ignored. So if one package requires `"evancz/elm-markdown": "2.0.1"` and an other `"evancz/elm-markdown": "1.0.0"`. The first one loaded will be installed. If the package with `1.0.0` is built first it will be installed and the `2.0.1` dependency will basically be ignored. You can always override dependencies manually using the elm command line tool from within `.elm`.
 
 ## Compiling Elm modules inside packages
 
