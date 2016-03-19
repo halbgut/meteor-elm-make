@@ -1,5 +1,3 @@
-# Note on stability - This is still a work in progress.
-
 ## Install
 
 ```
