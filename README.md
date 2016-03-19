@@ -8,7 +8,7 @@ meteor add elm:make
 
 # elm:make - 0.4.0 for Elm 0.16.0
 
-Build Elm inside your Meteor app.
+Build Elm inside your Meteor app. This package is to build Elm files inside your Meteor projects. Bindings for Meteor are provided by other packages which aren't done yet. [elm:meteor](https://github.com/Kriegslustig/meteor-elm-meteor), [elm:mongo](https://github.com/Kriegslustig/meteor-elm-mongo)
 
 ## Basic Usage
 
@@ -62,6 +62,8 @@ Just as with Modules registered from Meteor packages, there dependency collision
 **Don't compile Elm inside packages!** Exposing modules to apps from meteor packages is a great idea. But compiling them inside packages is a bad idea. The main reason is that `elm:make` creates a `.elm` directory inside the apps root directory. So even though `elm:make` supports this, you shouldn't do it.
 
 ## Complete Elm Build Process
+
+**This is currently beeing worked on.**
 
 Once every build:
 
