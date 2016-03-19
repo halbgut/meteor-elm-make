@@ -1,9 +1,14 @@
+/* globals Npm */
+/* globals Plugin */
+/* globals Meteor */
+/* globals helpers */
+
 const elm = Npm.require('elm/platform')
 
 const elmMake = elm.executablePaths['elm-make']
 const elmPackage = elm.executablePaths['elm-package']
 
-const wrapScript = str => str + `
+const wrapScript = (str) => str + `
 ; if (Meteor.isServer) {
   Elm.worker(Elm.Main)
 } else {
@@ -11,11 +16,6 @@ const wrapScript = str => str + `
     Elm.fullscreen(Elm.Main)
   })
 }
-`
-
-const ignore = `elm-stuff
-.tmp
-.modules
 `
 
 const compileFile = (h, packageName, filePath, elmDir, file) => {
@@ -46,7 +46,6 @@ const compileFile = (h, packageName, filePath, elmDir, file) => {
 const copyFile = (h, elmDir, packageName, filePath, file) => {
   const isNative = h.isNativeModule(filePath)
   const shouldExpose = h.shouldExpose(packageName)
-  const isTest = h.packageAuthor(packageName) === 'local-test'
   const isIndex = h.isIndexModule(packageName, filePath, !shouldExpose)
 
   let targetPath = [elmDir]
@@ -96,16 +95,14 @@ const copyFile = (h, elmDir, packageName, filePath, file) => {
 }
 
 const ElmCompiler = {}
-ElmCompiler.processFilesForTarget = files => {
-  const fs = Plugin.fs
+ElmCompiler.processFilesForTarget = (files) => {
   const path = Plugin.path
   const h = helpers(Plugin, Meteor)
 
   const root = h.findRoot()
   const elmDir = h.setUpDirs(root)
-  const config = h.setUpElmSources(elmDir)
 
-  files.forEach(file => {
+  files.forEach((file) => {
     try {
       const filePath = file.getPathInPackage()
       const filename = path.basename(file.getPathInPackage())
