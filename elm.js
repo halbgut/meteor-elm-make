@@ -1,9 +1,8 @@
-/* globals Npm */
 /* globals Plugin */
 /* globals Meteor */
 /* globals helpers */
 
-const elm = Npm.require('elm/platform')
+import elm from 'elm/platform.js'
 
 const elmMake = elm.executablePaths['elm-make']
 const elmPackage = elm.executablePaths['elm-package']

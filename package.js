@@ -1,15 +1,17 @@
+/* global Package */
+
 Package.describe({
-  summary: 'Elm 0.16.0 for Meteor'
-, name: 'elm:make'
-, version: '0.4.0'
-, git: 'https://github.com/Kriegslustig/meteor-elm-make.git'
+  summary: 'Elm 0.16.0 for Meteor',
+  name: 'elm:make',
+  version: '0.5.0',
+  git: 'https://github.com/Kriegslustig/meteor-elm-make.git'
 })
 
 Package.registerBuildPlugin({
-  name: 'elm'
-, use: ['ecmascript@0.1.6', 'meteor@1.1.10', 'babel-compiler@5.8.24']
-, sources: ['lib/helpers.js', 'elm.js']
-, npmDependencies: {
+  name: 'elm',
+  use: ['ecmascript@0.4.2', 'meteor@1.1.13', 'babel-compiler@6.6.1'],
+  sources: ['lib/helpers.js', 'elm.js'],
+  npmDependencies: {
     'elm': '0.16.0'
   }
 })
